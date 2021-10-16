@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"log"
 	"net/http"
 	"test-v2/models"
 	"time"
@@ -24,12 +25,16 @@ type UpdateTaskInput struct {
 // POST/Tasks
 // CreateTask
 func CreateTask(c *gin.Context) {
+	log.Println("c =>", c)
 	var input CreateTaskInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
+		return
 	}
+
+	log.Println("input =>", input)
 
 	date := "2006-01-02"
 	deadline, _ := time.Parse(date, input.Deadline)
@@ -55,7 +60,7 @@ func FindTasks(c *gin.Context) {
 	db.Find(&task)
 
 	c.JSON(http.StatusOK, gin.H{
-		"data" : task,
+		"data": task,
 	})
 }
 
@@ -90,6 +95,7 @@ func UpdateTask(c *gin.Context) {
 	}
 
 	var input UpdateTaskInput
+	log.Println("input =>", input)
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -97,13 +103,20 @@ func UpdateTask(c *gin.Context) {
 		return
 	}
 
+	log.Println("input =>", input)
+	log.Println("input.Deadline =>", input.Deadline)
+
 	date := "2006-01-02"
 	deadline, _ := time.Parse(date, input.Deadline)
 
 	var updateInput models.Task
 	updateInput.AssignedTo = input.AssignedTo
 	updateInput.Deadline = deadline
+	// updateInput.Deadline = deadline
 	updateInput.Task = input.Task
+
+	log.Println("updateInput => ", updateInput)
+	log.Println("updateInput.Deadline => ", updateInput.Deadline)
 
 	db.Model(&task).Updates(updateInput)
 
